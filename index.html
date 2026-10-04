@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+<!-- htmlaunch:enhanced:v2 -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22hsl(345%2C72%25%2C58%25)%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22hsl(15%2C72%25%2C44%25)%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22url(%23g)%22%2F%3E%3Ctext%20x%3D%2232%22%20y%3D%2246%22%20text-anchor%3D%22middle%22%20font-family%3D%22ui-sans-serif%2Csystem-ui%2C-apple-system%2CSegoe%20UI%2Csans-serif%22%20font-size%3D%2238%22%20font-weight%3D%22800%22%20fill%3D%22%23ffffff%22%3EF%3C%2Ftext%3E%3C%2Fsvg%3E">
+<meta name="theme-color" content="#144e7b">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Flappy Vaibhav | deployed with HTMLaunch">
+<link rel="canonical" href="https://vaibhav80393-rgb.github.io/prathamcreation/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Flappy Vaibhav">
+<meta property="og:title" content="Flappy Vaibhav">
+<meta property="og:description" content="Flappy Vaibhav | deployed with HTMLaunch">
+<meta property="og:url" content="https://vaibhav80393-rgb.github.io/prathamcreation/">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://s.wordpress.com/mshots/v1/https%3A%2F%2Fvaibhav80393-rgb.github.io%2Fprathamcreation%2F?w=1200&h=630">
+<meta property="og:image:alt" content="Flappy Vaibhav">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Flappy Vaibhav">
+<meta name="twitter:description" content="Flappy Vaibhav | deployed with HTMLaunch">
+<meta name="twitter:image" content="https://s.wordpress.com/mshots/v1/https%3A%2F%2Fvaibhav80393-rgb.github.io%2Fprathamcreation%2F?w=1200&h=630">
+<meta name="twitter:image:alt" content="Flappy Vaibhav">
+
+<meta charset="utf-8">
+<title>Flappy Vaibhav</title>
+<style>
+html,body{margin:0;background:#111;font-family:Arial,sans-serif;color:white;height:100%}
+body{display:flex;align-items:center;justify-content:center}
+#wrap{position:relative;width:min(430px,100vw);background:#78c8ff;border-radius:18px;overflow:hidden}
+canvas{display:block;width:100%;height:auto}
+#hud{position:absolute;top:12px;left:14px;right:14px;display:flex;justify-content:space-between;font-weight:800;font-size:18px;text-shadow:0 2px 3px #345}
+#panel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#0004}
+.card{background:#fffffff2;color:#111;padding:24px;border-radius:18px;text-align:center;width:270px}
+input{width:100%;box-sizing:border-box;padding:11px;border:1px solid #bbb;border-radius:10px;margin:8px 0;font-size:16px}
+button{border:0;border-radius:10px;padding:12px 20px;font-weight:800;cursor:pointer;font-size:16px}
+</style>
+</head>
+<body>
+<div id="wrap">
+<canvas id="game" width="360" height="640"></canvas>
+<div id="hud"><span id="nameHud">PLAYER</span><span>⭐ <b id="score">0</b> | BEST <b id="best">0</b></span></div>
+<div id="panel"><div class="card">
+<h2 id="title">FLAPPY VAIBHAV</h2>
+<p id="msg">Enter your name and fly through the pipes!</p>
+<input id="name" maxlength="16" placeholder="Your name">
+<button id="start">START GAME</button>
+<p style="font-size:12px;color:#666">Click / Space = flap</p>
+</div></div>
+</div>
+<script>
+const c=document.getElementById("game"),x=c.getContext("2d"),W=c.width,H=c.height;
+const panel=document.getElementById("panel"),start=document.getElementById("start"),nameInput=document.getElementById("name");
+const scoreEl=document.getElementById("score"),bestEl=document.getElementById("best"),nameHud=document.getElementById("nameHud");
+let bird,pipes,score=0,best=0,running=false,last=0;
+
+function reset(){
+  bird={x:82,y:290,vy:0,r:14}; pipes=[]; score=0; scoreEl.textContent=0;
+  nameHud.textContent=(nameInput.value.trim()||"PLAYER").toUpperCase();
+  running=true; panel.style.display="none"; last=performance.now(); requestAnimationFrame(loop);
+}
+function flap(){if(!running){reset();return} bird.vy=-330}
+function addPipe(){
+  const difficulty=Math.min(score/40,1);
+  const gap=160-difficulty*35;
+  const top=75+Math.random()*(H-80-gap-150);
+  pipes.push({x:W+20,w:58,top,gap,passed:false});
+}
+function collision(p){
+ return bird.x+bird.r>p.x&&bird.x-bird.r<p.x+p.w&&(bird.y-bird.r<p.top||bird.y+bird.r>p.top+p.gap);
+}
+function gameOver(){
+ running=false; best=Math.max(best,score); bestEl.textContent=best;
+ document.getElementById("title").textContent="GAME OVER";
+ document.getElementById("msg").textContent="Score: "+score+" • Best: "+best;
+ nameInput.style.display="none"; start.textContent="PLAY AGAIN"; panel.style.display="flex";
+}
+function draw(){
+ x.clearRect(0,0,W,H);
+ let g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#79cfff");g.addColorStop(.72,"#dff7ff");g.addColorStop(.72,"#9bd36a");x.fillStyle=g;x.fillRect(0,0,W,H);
+ x.fillStyle="#fff9";[[55,100,35],[245,145,42],[150,55,28]].forEach(a=>{x.beginPath();x.arc(a[0],a[1],a[2]*.45,0,7);x.arc(a[0]+a[2]*.45,a[1]+3,a[2]*.55,0,7);x.arc(a[0]+a[2],a[1],a[2]*.4,0,7);x.fill()});
+ for(const p of pipes){x.fillStyle="#4caf45";x.fillRect(p.x,0,p.w,p.top);x.fillRect(p.x,p.top+p.gap,p.w,H-80-(p.top+p.gap));x.fillStyle="#36863a";x.fillRect(p.x-5,p.top-14,p.w+10,14);x.fillRect(p.x-5,p.top+p.gap,p.w+10,14)}
+ x.fillStyle="#d9b45c";x.fillRect(0,H-80,W,80);x.fillStyle="#76b84b";for(let i=0;i<W;i+=22)x.fillRect(i,H-80,12,5);
+ x.save();x.translate(bird.x,bird.y);x.rotate(Math.max(-.5,Math.min(1,bird.vy/600)));x.fillStyle="#ffd43b";x.beginPath();x.arc(0,0,bird.r,0,7);x.fill();x.fillStyle="#fff";x.beginPath();x.arc(7,-6,6,0,7);x.fill();x.fillStyle="#111";x.beginPath();x.arc(9,-6,2,0,7);x.fill();x.fillStyle="#f28c28";x.beginPath();x.moveTo(13,0);x.lineTo(27,5);x.lineTo(13,8);x.fill();x.restore();
+}
+function loop(t){
+ if(!running)return;
+ const dt=Math.min(.033,(t-last)/1000);last=t;
+ const difficulty=Math.min(score/40,1);
+ bird.vy+=(1050+difficulty*250)*dt;bird.y+=bird.vy*dt;
+ const speed=145+difficulty*65;
+ if(!pipes.length||pipes[pipes.length-1].x<190)addPipe();
+ for(const p of pipes){p.x-=speed*dt;if(!p.passed&&p.x+p.w<bird.x){p.passed=true;score++;scoreEl.textContent=score}}
+ pipes=pipes.filter(p=>p.x+p.w>-10);
+ if(bird.y-bird.r<0||bird.y+bird.r>H-80||pipes.some(collision)){draw();gameOver();return}
+ draw();requestAnimationFrame(loop);
+}
+start.onclick=()=>{if(nameInput.value.trim()||nameInput.style.display==="none")reset();else{nameInput.focus();}};
+document.addEventListener("keydown",e=>{if(e.code==="Space"){e.preventDefault();flap()}});
+c.addEventListener("pointerdown",flap);draw();
+</script>
+</body>
+</html>
